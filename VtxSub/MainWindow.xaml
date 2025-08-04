@@ -1,12 +1,106 @@
-﻿<Window x:Class="VtxSub.MainWindow"
+﻿<!--MainWindow.xaml-->
+<Window x:Class="MainApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:VtxSub"
+        xmlns:local="clr-namespace:MainApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        
+        Title="Desktop Sprite"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
 
+    <Window.Resources>
+
+        <!-- 1. 定义整个右键菜单的样式 -->
+        <Style x:Key="SimpleContextMenu" TargetType="ContextMenu">
+            <!-- 设置菜单背景色为深灰色 -->
+            <Setter Property="Background" Value="#2D2F3C"/>
+            <!-- 设置菜单边框为深蓝色 -->
+            <Setter Property="BorderBrush" Value="#3C3F51"/>
+            <!-- 设置边框厚度为1像素 -->
+            <Setter Property="BorderThickness" Value="1"/>
+            <!-- 设置菜单内文字颜色为浅灰色 -->
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <!-- 移除内边距 -->
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <!-- 2. 定义普通菜单项的样式 -->
+        <Style x:Key="SimpleMenuItem" TargetType="MenuItem">
+            <!-- 设置背景透明 -->
+            <Setter Property="Background" Value="Transparent"/>
+            <!-- 设置文字颜色为浅灰色 -->
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <!-- 设置字体大小为14 -->
+            <Setter Property="FontSize" Value="14"/>
+            <!-- 设置每个菜单项高度为36像素 -->
+            <Setter Property="Height" Value="28"/>
+            <!-- 设置左右内边距为16像素 -->
+            <Setter Property="Padding" Value="10,0,10,0"/>
+            <!-- 文字左对齐 -->
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        </Style>
+
+        <!-- 3. 定义分隔线的特殊样式 -->
+        <Style x:Key="SeparatorStyle" TargetType="MenuItem" BasedOn="{StaticResource SimpleMenuItem}">
+            <!-- 设置高度为1像素（分隔线高度） -->
+            <Setter Property="Height" Value="1"/>
+            <!-- 设置上下外边距为4像素（分隔线间距） -->
+            <Setter Property="Margin" Value="0,4"/>
+            <!-- 设置模板为一条直线 -->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <!-- 分隔线：高度1像素，背景色#3C3F51，左右边距8像素 -->
+                        <Border Height="1" Background="#3C3F51" Margin="8,0"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+
+
+    <Grid>
+        <!--图片容器-->
+        <Image 
+            Source="/Assets/Images/sprite2.png" 
+            Width="200" 
+            Height="200" 
+            Stretch="Uniform">
+            <!-- 右键菜单 -->
+            <Image.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="待办事项" Click="ShowTodoWindow_Click"/>
+                    <MenuItem Header="隐藏窗口" Click="HideWindow_Click"/>
+                </ContextMenu>
+            </Image.ContextMenu>
+        </Image>
+
+        <!-- 计时器UI面板 -->
+        <Border Background="#AAFFFFFF" CornerRadius="10" 
+                HorizontalAlignment="Center" VerticalAlignment="Top"
+                Margin="0,20" Padding="10">
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                <TextBlock x:Name="TimerText" Text="00:00:00" 
+                          FontSize="20" FontWeight="Bold" 
+                          HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button x:Name="StartButton" Content="Start" 
+                            Width="50" Height="20" Margin="0,0,10,0" Click="StartButton_Click"/>
+                    <Button x:Name="RestartButton" Content="Restart" 
+                            Width="50" Height="20" Click="RestartButton_Click"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>
