@@ -95,8 +95,8 @@
                           HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button x:Name="StartButton" Content="Start" 
-                            Width="50" Height="20" Margin="0,0,10,0" Click="StartButton_Click"/>
+                    <Button x:Name="RestButton" Content="Rest" 
+                            Width="50" Height="20" Margin="0,0,10,0" Click="RestButton_Click"/>
                     <Button x:Name="RestartButton" Content="Restart" 
                             Width="50" Height="20" Click="RestartButton_Click"/>
                 </StackPanel>

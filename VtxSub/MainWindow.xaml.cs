@@ -29,6 +29,9 @@ namespace MainApp
             InitializeTrayIcon();
             InitTimer();
             InitializeTodoWindow();
+            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+            Debug.WriteLine(localAppData);
 
             // 订阅窗口加载完成事件
             Loaded += (s, e) =>
@@ -213,17 +216,17 @@ namespace MainApp
             {
                 _startTime = DateTime.Now;
                 _timer.Start();
-                StartButton.Content = "计时中...";
-                StartButton.IsEnabled = false;
             }
         }
 
         // 开始计时按钮点击
-        private void StartButton_Click(object sender, RoutedEventArgs e)
+        private void RestButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!_timer.IsEnabled)
+            if (_timer.IsEnabled)
             {
-                StartWorkSession();
+                _timer.Stop();
+                ShowRestWindow();
+                ResetTimer();
             }
         }
 
@@ -267,8 +270,6 @@ namespace MainApp
         private void ResetTimer()
         {
             TimerText.Text = "00:00:00";
-            StartButton.Content = "Start";
-            StartButton.IsEnabled = true;
 
         }
 

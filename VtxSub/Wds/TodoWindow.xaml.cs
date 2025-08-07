@@ -4,6 +4,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls; // 添加命名空间以访问控件
+using MainApp.Todos;
 
 namespace MainApp
 {
