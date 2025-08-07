@@ -11,7 +11,7 @@ using System.IO;
 
 namespace MainApp.Data
 {
-    class AppDbContext : DbContext
+    public class AppDbContext : DbContext
     {
         // 数据库表集合
         public DbSet<TodoItem> TodoItems { get; set; }
