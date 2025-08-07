@@ -1,45 +1,85 @@
 ﻿//TodoWindow.xaml.cs
-
-using System;
-using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Controls; // 添加命名空间以访问控件
 using MainApp.Todos;
+using System.Windows;
+using MainApp.Data;
+using VtxSub.Scripts.TodoWd.Services;
+
 
 namespace MainApp
 {
     public partial class TodoWindow : Window
     {
-        public ObservableCollection<TodoItem> TodoItems { get; set; } = new();
+        private readonly ITodoService _todoService;
 
-        private bool _isExpanded = false;
-
-        public TodoWindow()
+        public TodoWindow(ITodoService todoService)
         {
             InitializeComponent();
-            TodoListView.ItemsSource = TodoItems;
-            // 示例数据
-            TodoItems.Add(new TodoItem { Title = "学习WPF", Description = "完成WPF基础教程", DueDate = DateTime.Today.AddDays(1) });
-            TodoItems.Add(new TodoItem { Title = "写日报", Description = "提交日报", DueDate = DateTime.Today });
+            _todoService = todoService;
+            LoadDataAsync();
         }
 
-        private void ToggleButton_Click(object sender, RoutedEventArgs e)
+        private async void LoadDataAsync()
         {
-            _isExpanded = !_isExpanded;
-            // 通过 FindName 获取控件引用，避免命名空间或生成问题
-            var rightPanel = this.FindName("RightPanel") as Border;
-            var toggleButton = this.FindName("ToggleButton") as System.Windows.Controls.Button;
-            if (_isExpanded)
+            try
             {
-                this.Width = 500;
-                if (rightPanel != null) rightPanel.Visibility = Visibility.Visible;
-                if (toggleButton != null) toggleButton.Content = "缩小";
+                StatusText.Text = "正在加载数据...";
+                var rootItems = await _todoService.GetRootItemsAsync();
+                TodoTreeView.ItemsSource = rootItems;
+                StatusText.Text = $"已加载 {rootItems.Count()} 个任务";
             }
-            else
+            catch (Exception ex)
             {
-                this.Width = 200;
-                if (rightPanel != null) rightPanel.Visibility = Visibility.Collapsed;
-                if (toggleButton != null) toggleButton.Content = "放大";
+                StatusText.Text = "加载失败";
+                System.Windows.MessageBox.Show($"加载数据时出错: {ex.Message}", "错误",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void AddButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var newItem = new TodoItem
+                {
+                    Title = $"新任务 {DateTime.Now:HH:mm:ss}",
+                    Status = CompletionStatus.NotStarted,
+                    Priority = PriorityLevel.Medium,
+                    CreatedDate = DateTime.Now
+                };
+
+                await _todoService.CreateItemAsync(newItem);
+                StatusText.Text = "已添加新任务";
+
+                // 刷新数据
+                await RefreshDataAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"添加任务失败: {ex.Message}", "错误",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshDataAsync();
+        }
+
+        private async Task RefreshDataAsync()
+        {
+            try
+            {
+                StatusText.Text = "正在刷新数据...";
+                var rootItems = await _todoService.GetRootItemsAsync();
+                TodoTreeView.ItemsSource = null;
+                TodoTreeView.ItemsSource = rootItems;
+                StatusText.Text = $"已刷新 {rootItems.Count()} 个任务";
+            }
+            catch (Exception ex)
+            {
+                StatusText.Text = "刷新失败";
+                System.Windows.MessageBox.Show($"刷新数据时出错: {ex.Message}", "错误",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

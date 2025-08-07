@@ -1,5 +1,8 @@
 ﻿//MainWindow.xaml.cs
 
+using MainApp.Views;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -14,7 +17,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using MainApp.Views;
 
 namespace MainApp
 {
@@ -23,15 +25,19 @@ namespace MainApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        private readonly IServiceProvider _serviceProvider;
+
+        public MainWindow(IServiceProvider serviceProvider)
         {
+
+            _serviceProvider = serviceProvider;
+
             InitializeComponent();
             InitializeTrayIcon();
             InitTimer();
             InitializeTodoWindow();
-            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
-            Debug.WriteLine(localAppData);
+
 
             // 订阅窗口加载完成事件
             Loaded += (s, e) =>
@@ -276,16 +282,16 @@ namespace MainApp
         #endregion
 
         #region 待办事项窗口
-        private TodoWindow _todoWindow = null!;
+        private TodoWindow _todoWindow;
         private bool _todoWindowWasVisible = false;
 
         private void InitializeTodoWindow()
         {
-            _todoWindow = new TodoWindow();
+/*            _todoWindow = new TodoWindow();
             //_todoWindow.Owner = this; // 设置主窗口为所有者
             // 修改此行以避免将 null 赋值给非 null 引用类型
             _todoWindow.Closed += (s, e) => _todoWindow = null!;// 窗口关闭时清空引用（可能有乍todo）
-            _todoWindow.Hide();
+            _todoWindow.Hide();*/
 
             // 订阅位置变化事件
             LocationChanged += MainWindow_LocationChanged;
@@ -335,6 +341,20 @@ namespace MainApp
         // 显示/隐藏待办窗口
         private void ShowTodoWindow_Click(object sender, RoutedEventArgs e)
         {
+            if (_todoWindow == null)
+            {
+                _todoWindow = _serviceProvider.GetRequiredService<TodoWindow>();
+                _todoWindow.Closed += (s, e) => _todoWindow = null;
+                _todoWindow.Hide();
+
+                // 设置Owner（需要窗口渲染完成后）
+                Dispatcher.BeginInvoke(() =>
+                {
+                    if (_todoWindow != null)
+                        _todoWindow.Owner = this;
+                }, DispatcherPriority.Loaded);
+            }
+
             if (_todoWindow.IsVisible)
             {
                 _todoWindow.Hide();
@@ -346,7 +366,7 @@ namespace MainApp
                 _todoWindow.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     PositionTodoWindowOnMinimized();
-                }), System.Windows.Threading.DispatcherPriority.Loaded);
+                }), DispatcherPriority.Loaded);
             }
         }
 
